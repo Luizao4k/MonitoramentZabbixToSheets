@@ -1,184 +1,278 @@
-🚀 Automação de Incidentes Zabbix → Google Sheets
-⬆️ Versão Atual: 2.0 — Arquitetura Modular
+📊 Monitoramento de Incidentes Zabbix → Google Sheets
 
-Sistema desenvolvido para coletar incidentes automaticamente do Zabbix, processar os dados com regras inteligentes de filtragem e organizar as informações em abas estruturadas no Google Sheets.
+Aplicação Python responsável por:
 
-O projeto nasceu como um script único e evoluiu para uma arquitetura modular, mais preparada para manutenção, escalabilidade e uso em ambientes corporativos.
+🔎 Buscar problemas ativos no Zabbix
 
-🎯 Objetivo
+🧠 Aplicar regras de negócio (severidade, grupo, prefixo, DRE)
 
-Automatizar o fluxo de monitoramento transformando eventos do Zabbix em registros organizados para análise operacional e tomada de decisão.
+📄 Registrar incidentes no Google Sheets
 
-Este projeto elimina tarefas manuais como:
+🔁 Atualizar automaticamente incidentes resolvidos
 
-Consultar incidentes no Zabbix
+📊 Gerar estatísticas consolidadas de processamento
 
-Filtrar severidade
 
-Separar por grupos ou hosts
+🆕 Versão 3.0 — Melhorias Implementadas
+🔄 Sincronização de Status
 
-Identificar município / DRE
+Zabbix definido como fonte única de verdade
 
-Criar e organizar abas
+Incidentes resolvidos agora são detectados automaticamente
 
-Evitar duplicidade de eventos
+Atualização em lote do status e data de resolução no Google Sheets
 
-Tudo acontece de forma automática.
+📊 Estatísticas Consolidadas
 
-🧠 Como o Sistema Funciona
+Implementação de métricas de execução:
 
-Conecta à API do Zabbix
+Total recebidos
 
-Busca incidentes ativos
+Novos incidentes
 
-Aplica filtros inteligentes:
+Atualizados (resolvidos)
 
-Severidade mínima
+Ignorados (com detalhamento por motivo)
 
-Grupos permitidos
+🛡️ Maior Robustez
 
-Prefixos de host
+Tratamento de erro específico para falhas de conexão com o Zabbix
 
-Detecta o município e mapeia para sua DRE
+Melhoria na consistência entre sistemas
 
-Evita eventos duplicados
+## 📂 Estrutura do Projeto
 
-Organiza os dados por aba no Google Sheets
-
-Escreve os registros em lote (melhor performance)
-
-🔥 Versão 2.0 — Refatoração Arquitetural
-
-Esta versão representa uma evolução significativa do projeto.
-
-Principais melhorias:
-
-✅ Refatoração de script monolítico para arquitetura modular
-✅ Separação clara de responsabilidades
-✅ Código mais legível e manutenível
-✅ Redução de leituras desnecessárias no Google Sheets
-✅ Uso de cache local para maior performance
-✅ Estrutura preparada para crescimento
-✅ Melhor confiabilidade para execução em produção
-
-Essa mudança transforma o projeto de uma automação funcional para um serviço de integração mais robusto.
-
-🛠️ Tecnologias Utilizadas
-
-Python
-
-Zabbix API (pyzabbix)
-
-Google Sheets API (gspread)
-
-Service Account
-
-dotenv
-
-JSON para configuração
-
-Unicode normalization
-
-Processamento em lote
-
-📁 Estrutura do Projeto (exemplo)
 monitoramento_zabbix/
-│
-├── app/
-│   ├── __init__.py
-│   ├── __main__.py              # Ponto de entrada da aplicação
-│   │
-│   ├── application/            # Camada de orquestração
-│   │   └── incidente_orchestrator.py
-│   │
-│   ├── domain/                 # Regras de negócio
-│   │   ├── models.py
-│   │   └── incident_processor.py
-│   │
-│   ├── infrastructure/         # Integrações externas
-│   │   ├── zabbix_service.py
-│   │   └── google_sheets_service.py
-│   │
-│   ├── config/                 # Configurações do sistema
-│   │   └── settings.py
-│   │
-│   └── utils/                  # Utilidades compartilhadas
-│       └── logger.py
-│
-├── tests/                      # Testes automatizados
-│
-├── logs/                       # Arquivos de log da aplicação
-│
-├── secrets/                    # Credenciais 
-│
-├── .env                        # Variáveis de ambiente
-├── .gitignore
-├── Dockerfile
-├── docker-compose.yml
-├── requirements.txt
-├── requirements-dev.txt
-├── pytest.ini
-└── README.md
+├─ app/
+│ ├─ main.py
+│ ├─ domain/
+│ │ ├─ models.py
+│ │ └─ incident_processor.py
+│ ├─ infrastructure/
+│ │ ├─ zabbix_service.py
+│ │ └─ google_sheets_service.py
+│ ├─ tests/
+│ │ ├─ test_incident_processor.py
+│ │ ├─ test_google_sheets_service.py
+│ │ └─ test_zabbix_conexao
+│ ├─ utils/
+│ │ ├─logger.py
+│ │ └─ normalizar.py
+│ ├─ config/ # arquivos JSON de configuração
+│ │ ├─ config_groups.json
+│ │ ├─ config_severity.json
+│ │ ├─ dre_map.json
+│ │ └─ settings.py
+├─ logs/ # logs do container
+├─ secrets/ # service_account.json do Google
+├─ Dockerfile
+├─ docker-compose.yml
+├─ requirements.txt
+└─ .env
 
-A estrutura modular facilita testes, manutenção e futuras expansões.
+🔹 Camadas
+Camada	Responsabilidade
+Application	Orquestra o fluxo principal
+Domain	Regras de negócio e modelos
+Infrastructure	Integrações externas (Zabbix + Google Sheets)
+Config	Variáveis de ambiente e arquivos JSON
+Utils	Logger e funções auxiliares
 
-⚙️ Variáveis de Ambiente
+---
 
-Crie um arquivo .env:
+⚙️ Como Funciona
 
-ZABBIX_URL=https://seu_zabbix
-ZABBIX_TOKEN=seu_token
-SPREADSHEET_NAME=nome_da_planilha
-MIN_SEVERITY=2
-🔐 Autenticação Google
+Fluxo do sistema:
 
-Utilize uma Service Account e compartilhe a planilha com o e-mail gerado pelo Google Cloud.
+1. Conecta ao Zabbix
 
-Arquivo esperado:
+2. Busca problemas ativos
 
-service_account.json
+3. Mapeia eventos → hosts → grupos
 
-⚠️ Nunca versionar esse arquivo no Git.
+4. Aplica filtros:
 
-Adicione ao .gitignore.
+* Severidade mínima
 
-▶️ Como Executar
+* Grupo permitido
 
-Instale as dependências:
+* Prefixo permitido
+
+5. Determina DRE pelo município
+
+6. Evita duplicados
+
+7. Insere novos incidentes na planilha
+
+8. Detecta incidentes resolvidos
+
+9. Atualiza status em lote
+
+10. Gera relatório final no log
+
+
+## ⚙️ Configuração
+
+ **Variáveis de ambiente (.env)**
+
+```env
+GOOGLE_CREDS=secrets/service_account.json
+ZABBIX_URL=https://www.sistemas.pa.gov.br/zabbix/api_jsonrpc.php
+ZABBIX_TOKEN=seu_token_aqui
+SPREADSHEET_NAME=Incidentes Zabbix - AUTO
+HTTP_PROXY=http://usuario:senha@proxy:porta
+HTTPS_PROXY=http://usuario:senha@proxy:porta
+GOOGLE_CREDS: caminho para o arquivo do Service Account do Google.
+
+ZABBIX_URL e ZABBIX_TOKEN: acesso à API do Zabbix.
+
+SPREADSHEET_NAME: nome da planilha no Google Sheets.
+
+HTTP_PROXY / HTTPS_PROXY: somente se precisar de proxy corporativo.
+
+Arquivos de configuração JSON (na pasta config):
+
+config_groups.json → grupos e prefixos permitidos.
+
+dre_map.json → mapeamento de municípios → DRE.
+
+config_severity.json → severidade mínima dos incidentes.
+
+
+⚙️ Configurações JSON
+config_groups.json
+{
+  "allowed_groups": [
+    "Grupo A",
+    "Grupo B"
+  ],
+  "allowed_prefixes": [
+    "SRV",
+    "RTR"
+  ]
+}
+config_severity.json
+{
+  "min_severity": 3
+}
+dre_map.json
+{
+  "BELEM": "DRE - BELEM",
+  "ANANINDEUA": "DRE - ANANINDEUA"
+}
+⚠️ Municípios não encontrados vão para "DRE - OUTROS"
+
+
+
+📄 Configuração da Planilha
+
+Antes de executar o sistema:
+
+Criar uma planilha no Google Sheets
+
+Criar uma aba chamada:
+
+_TEMPLATE
+
+Essa aba será usada como modelo para criar automaticamente as abas das DREs.
+
+📌 Estrutura esperada da aba
+   A	      B       C	        D	        E	        F   	 G	           H
+EVENT_ID	DATA	HOST	MUNICIPIO	DESCRIÇÃO	SEVERIDADE	STATUS	DATA_RESOLUCAO
+
+O sistema criará automaticamente abas com base nas DREs definidas no dre_map.json.
+
+
+
+▶️ Como Executar 
+
+1️⃣ Instalar dependências
 
 pip install -r requirements.txt
 
-Execute:
+2️⃣ Executar aplicação
 
 python main.py
-🐳 Docker (Opcional, mas recomendado)
 
-O projeto está preparado para containerização, permitindo execução padronizada em qualquer ambiente.
+📦 Dependências
 
-📊 Benefícios da Automação
+pyzabbix
 
-✔ Redução de trabalho manual
-✔ Padronização dos registros
-✔ Melhor rastreabilidade de incidentes
-✔ Organização automática por região
-✔ Maior velocidade na análise operacional
+gspread
 
-🔭 Melhorias Futuras
+oauth2client
 
-Estrutura de logs mais robusta
+python-dotenv
 
-Políticas de retry para falhas de API
+requests
 
-Monitoramento da execução
+google-auth
 
-Dashboard para visualização
+cryptography
+
+
+📊 Regras de Negócio
+🔹 Filtros aplicados
+
+Severidade < min_severity → Ignorado
+
+Grupo não permitido → Ignorado
+
+Prefixo inválido → Ignorado
+
+Duplicado → Ignorado
+
+Host não encontrado → Ignorado
+
+🔹 Status
+Status	Significado
+0	Pendente
+1	Resolvido
+📈 Relatório Final
+
+Ao final da execução, o sistema gera:
+
+Total recebidos
+
+Novos incidentes
+
+Atualizados (resolvidos)
+
+Ignorados por:
+
+Severidade
+
+Grupo
+
+Prefixo
+
+Duplicidade
+
+Host não encontrado
+
+🔄 Atualização de Resolvidos
+
+O sistema:
+
+Compara incidentes ativos no Zabbix
+
+Com os EVENT_ID existentes na planilha
+
+Marca como resolvido aqueles que não estão mais ativos
+
+Atualiza em lote (performance otimizada)
+
+🧠 Conceitos Importantes
+🔹 DRE
+
+A DRE é determinada automaticamente com base no município extraído do nome do host.
+
+🔹 Fonte Única de Verdade
+
+As DREs válidas são derivadas automaticamente do dre_map.json.
+
 
 👨‍💻 Autor
+github.com/Luizao4k
 
-Luiz Paulo
-
-Projeto desenvolvido com foco em automação operacional, integração de APIs e boas práticas de engenharia de software.
-
-⭐ Observação
-
-Sistema funcional ativo na SEDUC, desenvolvido para automação de incidentes, proporcionando uma resolução real de problemas e otimização do fluxo operacional.
+Projeto desenvolvido para automação de monitoramento e consolidação de incidentes corporativos.

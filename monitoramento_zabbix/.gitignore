@@ -6,5 +6,4 @@ service_account.json
 .git
 .vscode
 secrets/
-.pytest_cache
 logs/

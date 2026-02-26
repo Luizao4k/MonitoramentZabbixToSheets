@@ -4,7 +4,7 @@ from app.config.settings import Settings
 
 def main() -> None:
     settings = Settings()
-    orchestrator = IncidentOrchestrator()
+    orchestrator = IncidentOrchestrator(settings)
     orchestrator.run()
     
 
